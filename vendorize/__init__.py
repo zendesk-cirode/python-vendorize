@@ -37,18 +37,22 @@ def _read_top_level_names(target_directory):
             if os.path.exists(path):
                 with open(path) as top_level_file:
                     all_names = all_names + list(filter(None, map(lambda line: line.strip(), top_level_file)))
-    return all_names
+    if len(all_names) > 0:
+        return all_names
     raise Exception("Could not find top_level.txt")
             
 def _rewrite_imports(target_directory, top_level_names):
     for top_level_name in top_level_names:
-        module_path = os.path.join(target_directory, top_level_name + ".py")
-        if os.path.exists(module_path):
-            _rewrite_imports_in_module(module_path, top_level_names, depth=0)
-        
-        package_path = os.path.join(target_directory, top_level_name)
-        if os.path.exists(package_path):
-            _rewrite_imports_in_package(package_path, top_level_names, depth=1)
+        try:
+            module_path = os.path.join(target_directory, top_level_name + ".py")
+            if os.path.exists(module_path):
+                _rewrite_imports_in_module(module_path, top_level_names, depth=0)
+            
+            package_path = os.path.join(target_directory, top_level_name)
+            if os.path.exists(package_path):
+                _rewrite_imports_in_package(package_path, top_level_names, depth=1)
+        except IndentationError:
+            print(f"Indentation Issue in {top_level_name}")
 
 def _rewrite_imports_in_package(package_path, top_level_names, depth):
     for name in os.listdir(package_path):

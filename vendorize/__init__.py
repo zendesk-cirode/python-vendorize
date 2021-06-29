@@ -24,7 +24,7 @@ def vendorize_requirements(path):
 def vendorize_requirement(cwd, requirement, target_directory):
     mkdir_p(target_directory)
     subprocess.check_call(
-        ["pip", "install", "--target", target_directory, requirement],
+        ["pip", "install", "--no-dependencies",  "--target", target_directory, requirement],
         cwd=cwd)
     top_level_names = _read_top_level_names(target_directory)
     _rewrite_imports(target_directory, top_level_names)

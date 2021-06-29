@@ -36,7 +36,7 @@ def _read_top_level_names(target_directory):
             path = os.path.join(target_directory, name, "top_level.txt")
             if os.path.exists(path):
                 with open(path) as top_level_file:
-                    return all_names = all_names + list(filter(None, map(lambda line: line.strip(), top_level_file)))
+                    all_names = all_names + list(filter(None, map(lambda line: line.strip(), top_level_file)))
     return all_names
     raise Exception("Could not find top_level.txt")
             

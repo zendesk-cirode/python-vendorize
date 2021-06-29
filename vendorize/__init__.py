@@ -24,19 +24,20 @@ def vendorize_requirements(path):
 def vendorize_requirement(cwd, requirement, target_directory):
     mkdir_p(target_directory)
     subprocess.check_call(
-        ["pip", "install", "--no-dependencies", "--target", target_directory, requirement],
+        ["pip", "install", "--target", target_directory, requirement],
         cwd=cwd)
     top_level_names = _read_top_level_names(target_directory)
     _rewrite_imports(target_directory, top_level_names)
 
 def _read_top_level_names(target_directory):
+    all_names = []
     for name in os.listdir(target_directory):
         if name.endswith(".egg-info") or name.endswith(".dist-info"):
             path = os.path.join(target_directory, name, "top_level.txt")
             if os.path.exists(path):
                 with open(path) as top_level_file:
-                    return list(filter(None, map(lambda line: line.strip(), top_level_file)))
-    
+                    all_names.append(list(filter(None, map(lambda line: line.strip(), top_level_file))))
+    return all_names
     raise Exception("Could not find top_level.txt")
             
 def _rewrite_imports(target_directory, top_level_names):

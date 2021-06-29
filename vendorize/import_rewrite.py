@@ -86,6 +86,7 @@ def rewrite_imports_in_module(source, top_level_names, depth):
 
 
 def _find_line_endings(source):
+    print(source)
     token_stream = tokenize.generate_tokens(io.StringIO(source + "\n").readline)
     for token_type, token_str, start, end, line in token_stream:
         if token_type == tokenize.NEWLINE:

@@ -43,16 +43,13 @@ def _read_top_level_names(target_directory):
             
 def _rewrite_imports(target_directory, top_level_names):
     for top_level_name in top_level_names:
-        try:
-            module_path = os.path.join(target_directory, top_level_name + ".py")
-            if os.path.exists(module_path):
-                _rewrite_imports_in_module(module_path, top_level_names, depth=0)
-            
-            package_path = os.path.join(target_directory, top_level_name)
-            if os.path.exists(package_path):
-                _rewrite_imports_in_package(package_path, top_level_names, depth=1)
-        except IndentationError:
-            print(f"Indentation Issue in {top_level_name}")
+        module_path = os.path.join(target_directory, top_level_name + ".py")
+        if os.path.exists(module_path):
+            _rewrite_imports_in_module(module_path, top_level_names, depth=0)
+        
+        package_path = os.path.join(target_directory, top_level_name)
+        if os.path.exists(package_path):
+            _rewrite_imports_in_package(package_path, top_level_names, depth=1)
 
 def _rewrite_imports_in_package(package_path, top_level_names, depth):
     for name in os.listdir(package_path):
@@ -65,17 +62,20 @@ def _rewrite_imports_in_package(package_path, top_level_names, depth):
     
     
 def _rewrite_imports_in_module(module_path, top_level_names, depth):
-    with io.open(module_path, "rb") as source_file:
-        encoding = python_source.find_encoding(source_file)
+    try:
+        with io.open(module_path, "rb") as source_file:
+            encoding = python_source.find_encoding(source_file)
 
-    with io.open(module_path, "r", encoding=encoding, newline='') as source_file:
-        source = source_file.read()
-    
-    rewritten_source = rewrite_imports_in_module(source, top_level_names, depth)
-    
-    with io.open(module_path, "w", encoding=encoding, newline='') as source_file:
-        source_file.write(rewritten_source)
+        with io.open(module_path, "r", encoding=encoding, newline='') as source_file:
+            source = source_file.read()
+        
+        rewritten_source = rewrite_imports_in_module(source, top_level_names, depth)
+        
+        with io.open(module_path, "w", encoding=encoding, newline='') as source_file:
+            source_file.write(rewritten_source)
 
-    pyc_path = os.path.splitext(module_path)[0] + ".pyc"
-    if os.path.exists(pyc_path):
-        os.unlink(pyc_path)
+        pyc_path = os.path.splitext(module_path)[0] + ".pyc"
+        if os.path.exists(pyc_path):
+            os.unlink(pyc_path)
+    except IndentationError:
+        print(f"Indentation Issue in {module_path}, skipping file")
